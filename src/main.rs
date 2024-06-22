@@ -1,8 +1,7 @@
 use core::panic;
 use crossterm::cursor;
 use crossterm::event::{poll, read, Event, KeyCode, KeyModifiers};
-use crossterm::style::Print;
-use crossterm::terminal::{self, ClearType, WindowSize};
+use crossterm::terminal::{self, ClearType};
 use crossterm::ExecutableCommand;
 use crossterm::QueueableCommand;
 use std::io::{stdout, Write};
@@ -10,13 +9,11 @@ use std::thread;
 use std::time::Duration;
 
 mod filepicker;
-use filepicker::list_files::get_dir_files;
-use filepicker::list_files::Details;
 fn main() {
     let mut stdout = stdout();
     let _ = stdout.execute(terminal::EnterAlternateScreen);
     let _ = terminal::enable_raw_mode();
-    let (mut x, mut y) = terminal::size().unwrap();
+    let (x, y) = terminal::size().unwrap();
     terminal::SetSize(x, y);
     let wsize = terminal::window_size();
     let _ws = match wsize {

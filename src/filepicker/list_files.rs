@@ -1,7 +1,5 @@
-use std::error::Error;
-use std::ffi::{OsStr, OsString};
-use std::fs::FileType;
-use std::{env::current_dir, path::PathBuf};
+use std::ffi::{OsString};
+use std::{path::PathBuf};
 use walkdir::{DirEntry, WalkDir};
 
 #[derive(Debug, Clone)]
