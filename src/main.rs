@@ -9,6 +9,7 @@ use std::thread;
 use std::time::Duration;
 
 mod filepicker;
+
 fn main() {
     let mut stdout = stdout();
     let _ = stdout.execute(terminal::EnterAlternateScreen);
@@ -22,8 +23,14 @@ fn main() {
     };
 
     let mut quit = false;
+    let mut column: u16 = 0;
+    let mut row: u16 = 0;
+    let mut esc = false;
 
+    let cur = stdout.execute(cursor::EnableBlinking);
     stdout.queue(terminal::Clear(ClearType::All)).unwrap();
+
+    stdout.execute(cursor::SetCursorStyle::BlinkingBlock);
     while !quit {
         while poll(Duration::ZERO).unwrap() {
             match read().unwrap() {
@@ -36,9 +43,27 @@ fn main() {
                     KeyCode::Char(x) => {
                         if x == 'c' && event.modifiers.contains(KeyModifiers::CONTROL) {
                             quit = true
+                        } else if x == 'j' && esc {
+                            row += 1;
+                        } else if x == 'k' && esc {
+                            if row != 0 {
+                                row -= 1;
+                            }
+                        } else if x == 'l' && esc {
+                            column += 1;
+                        } else if x == 'h' && esc {
+                            if column != 0 {
+                                column -= 1;
+                            }
                         }
                     }
-                    KeyCode::Esc => println!("Esc pressed\r"),
+                    KeyCode::Esc => {
+                        if esc {
+                            esc = false;
+                        } else {
+                            esc = true;
+                        }
+                    }
                     KeyCode::Enter => println!("Enter pressed\r"),
                     _ => todo!(),
                 },
@@ -46,10 +71,10 @@ fn main() {
                 Event::Paste(string) => todo!(),
             }
         }
-
-        stdout.queue(cursor::MoveTo(0, 0));
+        stdout.execute(cursor::MoveTo(column, row));
         stdout.flush();
         thread::sleep(Duration::from_millis(16.66666 as u64));
+        stdout.execute(terminal::Clear(ClearType::All));
     }
 
     terminal::disable_raw_mode();
